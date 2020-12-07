@@ -5,11 +5,10 @@ import re
 import pprint as p
 
 class DataPrep():
-    def __init__():
-        return null
-
+    def __init__(self):
+        self = self
     #Table Generatng 
-    def getGameTable():
+    def getGameTable(self):
         game_filenames = list(glob.glob("../../FootballData/Games/20*.csv"))
         gf = [pd.read_csv(filename) for filename in game_filenames]
         game_filename = [f for f in gf]
@@ -17,7 +16,7 @@ class DataPrep():
         
         return gametables 
 
-    def getPlacementTable():      
+    def getPlacementTable(self):      
         placement_filenames = list(glob.glob("../../FootballData/Placement/20*.csv"))
         pf = []
         for filename in placement_filenames:
@@ -31,8 +30,8 @@ class DataPrep():
         return placementtables
 
         
-    def getAllTimeMatchUps():
-        all_time_table = getGameTable().iloc[:,1:6].copy()
+    def getAllTimeMatchUps(self):
+        all_time_table = self.getGameTable().iloc[:,1:6].copy()
         all_time_table["Date"] = pd.to_datetime(all_time_table["Date"])
         all_time_table = all_time_table.sort_values(by="Date")
         all_time_table = all_time_table.reset_index()
@@ -42,8 +41,8 @@ class DataPrep():
 
     #-> sum_of_points sind die gesamt Anzahl der Punkte, die jede BL-Mannschaft in den letzten
     #-> 10 Jahren geholt hat.
-    def getAllTimePointsTable():
-        placementtables = getPlacementTable()
+    def getAllTimePointsTable(self):
+        placementtables = self.getPlacementTable()
         all_teams = []
         
         for i in placementtables['Mannschaft']:
@@ -68,7 +67,7 @@ class DataPrep():
 
     #Return Table with All Teams and [Goals Scored, Goals Conceded, Goal Difference]
 
-    def find_td(series):
+    def find_td(self,series):
         goals = []
         made = []
         conceded = []
@@ -82,8 +81,8 @@ class DataPrep():
         goals.append(conceded)
         return goals
 
-    def getSortedPlacementTable():
-        placementtables = getPlacementTable()
+    def getSortedPlacementTable(self):
+        placementtables = self.getPlacementTable()
         all_teams = []
         for i in placementtables['Mannschaft']:
             if(i in all_teams):
@@ -97,10 +96,9 @@ class DataPrep():
             
         return listed_placements
 
-    def getAllTimeGoalDiff():
-        listed_placements = getSortedPlacementTable()
+    def getAllTimeGoalDiff(self):
+        listed_placements = self.getSortedPlacementTable()
         
-        goal_difference = []
         goal_diff_dic = {}
         for i in listed_placements:
             gd = i['TD']
@@ -111,7 +109,7 @@ class DataPrep():
 
         for key, value in goal_diff_dic.items():
             #if key == "Borussia Dortmund":
-            tmp = find_td(value)
+            tmp = self.find_td(value)
             goals_made = list(map(int,tmp[0]))
             goals_conceded = list(map(int,tmp[1]))
             sm_gm = sum(goals_made)
@@ -124,8 +122,8 @@ class DataPrep():
     #which Calculates the past Matches between two Teams and creates an shows how often the 
     #result was > 2.5
 
-    def getGameResults(hometeam, awayteam):
-        all_time_table = getAllTimeMatchUps()
+    def getGameResults(self,hometeam, awayteam):
+        all_time_table = self.getAllTimeMatchUps()
         result = all_time_table.where((all_time_table['HomeTeam'].str.contains(hometeam)) 
                                 & (all_time_table['AwayTeam'].str.contains(awayteam)) 
                                     |(all_time_table['AwayTeam'].str.contains(hometeam)) 
@@ -133,7 +131,7 @@ class DataPrep():
         return result.dropna()
 
 
-    def inDepthGameResults(table):
+    def inDepthGameResults(self,table):
         if(len(table) > 8):
             #return table.where(table["FTHG"] > table["FTAG"])
             resultlist = []
@@ -168,9 +166,9 @@ class DataPrep():
             resultlist = "Not enough MatchUps played"
         return resultlist
 
-    def getOverUnderResult(hometeam, awayteam):
-        matchUp = getGameResults(hometeam,awayteam) 
-        matchUpResult = inDepthGameResults(matchUp)
+    def getOverUnderResult(self,hometeam, awayteam):
+        matchUp = self.getGameResults(hometeam,awayteam) 
+        matchUpResult = self.inDepthGameResults(matchUp)
 
         resultTmpList = []
         if(type(matchUpResult) is str):
@@ -191,8 +189,8 @@ class DataPrep():
             }
             return result
 
-    def getAllTimeGamesPlayed():
-        table = getSortedPlacementTable()
+    def getAllTimeGamesPlayed(self):
+        table = self.getSortedPlacementTable()
         gamesPlayedDict = {}
         for i in table:
             played = i['Spiele']
