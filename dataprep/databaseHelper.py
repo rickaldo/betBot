@@ -3,79 +3,86 @@ from mysql.connector import Error
 import pandas as pd
 import datetime
 
-def create_server_connection(host_name, user_name, user_password):
-    connection = None
-    try:
-        connection = mysql.connector.connect(
-            host= host_name,
-            user= user_name,
-            passwd= user_password
-        )
-        print("Connection Succesful")
-    except Error as err:
-        print(f"Error: '{err}'")
+class DatabaseHelper():
+    def __init__(self):
+        return None
 
-    
-    return connection
+    @classmethod
+    def test(self):
+        print("Test")
 
-def create_db_connection(host_name, user_name, user_password, db_name):
-    connection = None
-    try:
-        connection = mysql.connector.connect(
-            host = host_name,
-            user = user_name,
-            passwd = user_password,
-            database = db_name
-        )
-        print("Database Connection Succesful")
+    def createServerConnection(self,host_name, user_name, user_password):
+        connection = None
+        try:
+            connection = mysql.connector.connect(
+                host= host_name,
+                user= user_name,
+                passwd= user_password
+            )
+            print("Connection Succesful")
+        except Error as err:
+            print(f"Error: '{err}'")
 
-    except Error as err:
-        print(f"Error: '{err}'")
+        return connection
 
-    return connection
+    def createDbConnection(self,host_name, user_name, user_password, db_name):
+        connection = None
+        try:
+            connection = mysql.connector.connect(
+                host = host_name,
+                user = user_name,
+                passwd = user_password,
+                database = db_name
+            )
+            print("Database Connection Succesful")
 
-def execute_query(connection, query):
-    cursor = connection.cursor()
-    try:
-        cursor.execute(query)
-        connection.commit()
-        print("Query succesful")
+        except Error as err:
+            print(f"Error: '{err}'")
 
-    except Error as err:
-        print(f"Error: '{err}'")
+        return connection
 
-def getTeamnames(connection):
-    cursor = connection.cursor()
-    result = None
-    try:
-        cursor.execute("""SELECT * FROM tamenames""")
-        result = cursor.fetchall()
-        return result
-    except Error as err:
-        print(f"Error: '{err}'")
+    def executeQuery(self,connection, query):
+        cursor = connection.cursor()
+        try:
+            cursor.execute(query)
+            connection.commit()
+            print("Query succesful")
 
-#Query to add single match 
-def insert_match(connection,index,division,date,hid,aid,fthg,ftag,ftr,hthg,athg,htr,hss,ass,hst,ast,hf,af,hc,ac,hy,ay,hr,ar):
-    insert_matche = """ 
-    INSERT INTO matches VALUES
-        (%s, '%s', '%s', %s, %s, %s, %s, '%s', %s, %s, '%s', %s, %s,
-         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-    """%(index,division,date,hid,aid,fthg,ftag,ftr,hthg,athg,htr,hss,ass,hst,ast,hf,af,hc,ac,hy,ay,hr,ar)
-    execute_query(connection,insert_matche)
+        except Error as err:
+            print(f"Error: '{err}'")
 
-def insert_matches(connection,data):
-    for index,row in data.iterrows():
-        insert_match(connection,index,row['Div'],
-        datetime.datetime.strptime(row['Date'],"%d.%m.%Y"),row['HomeTeam'],row['AwayTeam'],
-        row['FTHG'],row['FTAG'],row['FTR'],
-        row['HTHG'],row['HTAG'],row['HTR'],row['HS'],row['AS'],
-        row['HST'],row['AST'],row['HF'],row['AF'],row['HC'],row['AC'],
-        row['HY'],row['AY'],row['HR'],row['AR'])
+    def getTeamnames(self,connection):
+        cursor = connection.cursor()
+        result = None
+        try:
+            cursor.execute("""SELECT * FROM tamenames""")
+            result = cursor.fetchall()
+            return result
+        except Error as err:
+            print(f"Error: '{err}'")
 
-def openCsv():
-    gf = pd.read_csv("newData.csv",sep=";")
-    df = gf.drop(gf.columns[gf.columns.str.contains('^Spalte')], axis=1)
-    return df
+    #Query to add single match 
+    def insertMatch(self,connection,index,division,date,hid,aid,fthg,ftag,ftr,hthg,athg,htr,hss,ass,hst,ast,hf,af,hc,ac,hy,ay,hr,ar):
+        insert_matche = """ 
+        INSERT INTO matches VALUES
+            (%s, '%s', '%s', %s, %s, %s, %s, '%s', %s, %s, '%s', %s, %s,
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+        """%(index,division,date,hid,aid,fthg,ftag,ftr,hthg,athg,htr,hss,ass,hst,ast,hf,af,hc,ac,hy,ay,hr,ar)
+        self.executeQuery(connection,insert_matche)
+
+    def insertMatches(self,connection,data):
+        for index,row in data.iterrows():
+            self.insertMatch(connection,index,row['Div'],
+            datetime.datetime.strptime(row['Date'],"%d.%m.%Y"),row['HomeTeam'],row['AwayTeam'],
+            row['FTHG'],row['FTAG'],row['FTR'],
+            row['HTHG'],row['HTAG'],row['HTR'],row['HS'],row['AS'],
+            row['HST'],row['AST'],row['HF'],row['AF'],row['HC'],row['AC'],
+            row['HY'],row['AY'],row['HR'],row['AR'])
+
+    def openCsv(self):
+        gf = pd.read_csv("newData.csv",sep=";")
+        df = gf.drop(gf.columns[gf.columns.str.contains('^Spalte')], axis=1)
+        return df
 
 
 # init_pop_teamnames = """
@@ -112,9 +119,9 @@ def openCsv():
 # """
 
 
-conn = create_db_connection("localhost", "root", "password", "bot")
-data = openCsv()
-insert_matches(conn,data)
+# conn = create_db_connection("localhost", "root", "password", "bot")
+# data = openCsv()
+# insert_matches(conn,data)
 #execute_query(conn, init_pop_teamnames) <- Used to initaly insert Teamnames into Database
 # names = getTeamnames(conn)
 # for result in names:
