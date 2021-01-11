@@ -79,6 +79,24 @@ class DatabaseHelper():
             row['HST'],row['AST'],row['HF'],row['AF'],row['HC'],row['AC'],
             row['HY'],row['AY'],row['HR'],row['AR'])
 
+    def updateHomeMatches(self, connection, data):
+        for i in data:
+            form = (i[1] / 91) * 100
+            insert = """
+            UPDATE `matches` SET `hometeamform` = %s WHERE `date` >= "2011-08-05" 
+            AND `date` <= "2011-05-14" AND `hometeamid` = %s
+            """%(form, i[0])
+            self.executeQuery(connection, insert)
+            
+    def updateAwayMatches(self, connection, data):
+        for i in data:
+            form = (i[1] / 91) * 100
+            second = """
+            UPDATE `matches` SET `awayteamform` = %s WHERE `date` >= "2011-08-05" 
+            AND `date` <= "2011-05-14" AND `awayteamid` = %s
+            """%(form, i[0])
+            self.executeQuery(connection, second)
+
     def openCsv(self):
         gf = pd.read_csv("newData.csv",sep=";")
         df = gf.drop(gf.columns[gf.columns.str.contains('^Spalte')], axis=1)

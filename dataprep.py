@@ -32,11 +32,29 @@ class Datapreperation():
     
     #returns the Matches that the Teams played against each other.;
     #needs the Connection to the Database and the TeamIDArray
+    #----------> TRAININGDATA
     def getMatchesOfTeams(self, teamIDArray):
         cursor = self.connection.cursor()
         result = None
         try:
-            cursor.execute("""SELECT * FROM matches WHERE hometeamid=%s and awayteamid=%s or hometeamid=%s and awayteamid=%s"""%(teamIDArray[0],teamIDArray[1],teamIDArray[1],teamIDArray[0]))
+            cursor.execute("""SELECT * FROM matches 
+            WHERE hometeamid=%s and awayteamid=%s or hometeamid=%s 
+            and awayteamid=%s and date<2019-08-15"""
+            %(teamIDArray[0],teamIDArray[1],teamIDArray[1],teamIDArray[0]))
+            result = cursor.fetchall()
+            return result
+        except Error as err:
+            print(f"Error: '{err}'")
+
+    #Same as getMatchesOfTeams but return the Testdata
+    def getMatchesOfTeamsTest(self, teamIDArray):
+        cursor = self.connection.cursor()
+        result = None
+        try:
+            cursor.execute("""SELECT * FROM matches 
+            WHERE hometeamid=%s and awayteamid=%s or hometeamid=%s 
+            and awayteamid=%s and date>2019-08-15"""
+            %(teamIDArray[0],teamIDArray[1],teamIDArray[1],teamIDArray[0]))
             result = cursor.fetchall()
             return result
         except Error as err:
